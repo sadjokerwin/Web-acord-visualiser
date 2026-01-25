@@ -249,8 +249,16 @@ body {
   color: var(--accent-color);
   font-weight: bold;
   font-size: 16px;
-  margin-bottom: 10px;
-  text-decoration: underline;
+  margin-top: 15px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.performance-note {
+  color: var(--text-secondary);
+  font-style: italic;
+  font-size: 13px;
+  margin-bottom: 8px;
   display: block;
 }
 
@@ -262,6 +270,8 @@ body {
   min-height: 16px;
   display: block;
   margin-bottom: 2px;
+  font-family: "Courier New", monospace;
+  white-space: pre;
 }
 
 .lyric-line {

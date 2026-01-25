@@ -231,8 +231,10 @@ async function loadSongDetails(songId) {
         const lyricsData = await lyricsResponse.json();
         lyrics = lyricsData.lyrics;
 
-        // Save lyrics to database for next time
-        saveLyrics(songId, lyrics);
+        // Format lyrics with chords and save to database
+        const formattedLyrics = formatLyricsWithChords(lyrics, data.chords);
+        saveLyrics(songId, formattedLyrics);
+        lyrics = formattedLyrics;
       } catch (error) {
         console.error("Грешка при зареждане на текста:", error);
         lyrics = "Текстът на песента не е наличен";
@@ -257,8 +259,92 @@ async function loadSongDetails(songId) {
   }
 }
 
+// Format plain lyrics with chord positioning
+function formatLyricsWithChords(plainLyrics, chords) {
+  if (!plainLyrics || !chords || chords.length === 0) {
+    return sanitizeLyrics(plainLyrics);
+  }
+
+  // First sanitize the lyrics
+  let lyrics = sanitizeLyrics(plainLyrics);
+
+  // Split into lines
+  let lines = lyrics.split("\n");
+  let formattedLines = [];
+
+  // Get unique chord names
+  const chordNames = [...new Set(chords.map((c) => c.chord_name))];
+
+  // Process each line
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmedLine = line.trim();
+
+    // Keep section headers as-is
+    if (trimmedLine.startsWith("[") && trimmedLine.endsWith("]")) {
+      formattedLines.push(line);
+      continue;
+    }
+
+    // Skip empty lines
+    if (trimmedLine === "") {
+      formattedLines.push("");
+      continue;
+    }
+
+    // Check if this line likely has a chord change (heuristic approach)
+    // We'll add chords above lines that start verses or have significant words
+    const shouldAddChords =
+      trimmedLine.length > 10 && // Has meaningful text
+      !trimmedLine.match(/^[\s\-,\.!?]+$/) && // Not just punctuation
+      (i === 0 || lines[i - 1].trim() === "" || lines[i - 1].trim().startsWith("[")); // First line or after break/section
+
+    if (shouldAddChords && chordNames.length > 0) {
+      // Add a chord line above - cycle through available chords
+      const chordIndex =
+        Math.floor(formattedLines.filter((l) => l.match(/^[A-G]/)).length) % chordNames.length;
+      const numChords = Math.min(2 + Math.floor(Math.random() * 2), chordNames.length); // 2-3 chords per line
+
+      let chordLine = "";
+      for (let j = 0; j < numChords; j++) {
+        const idx = (chordIndex + j) % chordNames.length;
+        if (j > 0) chordLine += "  ";
+        chordLine += chordNames[idx];
+      }
+
+      formattedLines.push(chordLine);
+    }
+
+    formattedLines.push(line);
+  }
+
+  return formattedLines.join("\n");
+}
+
+// Sanitize lyrics text from API
+function sanitizeLyrics(lyrics) {
+  if (!lyrics) return "";
+
+  // Remove excessive whitespace and normalize line breaks
+  let cleaned = lyrics
+    .split("\n")
+    .map((line) => line.trimEnd()) // Remove trailing spaces
+    .join("\n");
+
+  // Remove more than 2 consecutive empty lines
+  cleaned = cleaned.replace(/\n{3,}/g, "\n\n");
+
+  // Remove leading and trailing empty lines
+  cleaned = cleaned.trim();
+
+  return cleaned;
+}
+
 // Save lyrics to database
 async function saveLyrics(songId, lyrics) {
+  // Sanitize lyrics before saving
+  const cleanedLyrics = sanitizeLyrics(lyrics);
+
   try {
     await fetch(`${API_BASE_URL}/save_lyrics.php`, {
       method: "POST",
@@ -267,7 +353,7 @@ async function saveLyrics(songId, lyrics) {
       },
       body: JSON.stringify({
         song_id: songId,
-        lyrics: lyrics,
+        lyrics: cleanedLyrics,
       }),
     });
   } catch (error) {
@@ -306,7 +392,7 @@ function addChordsToLyrics(lyrics, chords) {
     });
   }
 
-  // Build regex pattern from available chords
+  // Build regex pattern from available chords - improved pattern
   const chordNames = Object.keys(chordMap);
   const escapedChords = chordNames.map((name) => name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
   const chordPattern =
@@ -319,47 +405,85 @@ function addChordsToLyrics(lyrics, chords) {
 
   while (i < lines.length) {
     let line = lines[i];
+    const trimmedLine = line.trim();
 
-    // Check for section headers like [Intro], [Verse 1], etc.
-    if (/^\[.*\]$/.test(line.trim())) {
-      const sectionName = line.trim().replace(/[\[\]]/g, "");
-      result += `<div class="section-title">${sectionName}:</div>`;
+    // Skip empty lines at the start
+    if (trimmedLine === "" && i === 0) {
       i++;
       continue;
     }
 
-    // Check if line contains only chords (and spaces)
+    // Check for section headers like [Intro], [Verse 1], etc.
+    if (/^\[.*\]$/.test(trimmedLine)) {
+      const sectionName = trimmedLine.replace(/[\[\]]/g, "");
+      result += `<div class="section-title">${sectionName}</div>`;
+      i++;
+      continue;
+    }
+
+    // Check if line contains only chords and spaces (improved detection)
+    // Matches patterns like: G B C Cm, Am F G, C#m Dm7, etc.
     const isChordLine =
-      /^[A-G#mb/\s\d]+$/.test(line) && line.trim().length > 0 && line.length < 100;
+      /^[A-G][#b]?[m]?[0-9]?(\s+[A-G][#b]?[m]?[0-9]?)*\s*$/.test(trimmedLine) &&
+      trimmedLine.length > 0 &&
+      trimmedLine.length < 150;
 
     if (isChordLine && chordPattern) {
       // This is a chord line
       const nextLine = i + 1 < lines.length ? lines[i + 1] : "";
-      const isNextLineEmpty = nextLine.trim() === "";
-      const isNextLineChords = /^[A-G#mb/\s\d]+$/.test(nextLine) && nextLine.trim().length > 0;
+      const nextTrimmed = nextLine.trim();
+      const isNextLineEmpty = nextTrimmed === "";
+      const isNextLineSection = /^\[.*\]$/.test(nextTrimmed);
+      const isNextLineChords =
+        /^[A-G][#b]?[m]?[0-9]?(\s+[A-G][#b]?[m]?[0-9]?)*\s*$/.test(nextTrimmed) &&
+        nextTrimmed.length > 0;
 
-      // Replace chord names with clickable spans
-      const processedChords = line.replace(chordPattern, (match) => {
-        return `<span class="chord-inline" data-chord="${match}" data-tab="${chordMap[match] || ""}">${match}</span>`;
+      // Process chords to maintain spacing
+      let processedChords = "";
+      let lastIndex = 0;
+      const matches = [...line.matchAll(chordPattern)];
+
+      matches.forEach((match) => {
+        // Add spaces before the chord
+        processedChords += line.substring(lastIndex, match.index);
+        // Add the clickable chord
+        processedChords += `<span class="chord-inline" data-chord="${match[0]}" data-tab="${chordMap[match[0]] || ""}">${match[0]}</span>`;
+        lastIndex = match.index + match[0].length;
       });
+      // Add remaining spaces
+      processedChords += line.substring(lastIndex);
 
-      if (!isNextLineEmpty && !isNextLineChords && nextLine) {
-        // Next line is lyrics - show chord above it
-        result += `<div class="chord-line">${processedChords}</div>`;
+      if (!isNextLineEmpty && !isNextLineChords && !isNextLineSection && nextLine) {
+        // Next line is lyrics - show chord above it with proper alignment
+        result += `<div class="chord-line">${processedChords || "&nbsp;"}</div>`;
         result += `<div class="lyric-line">${nextLine}</div>`;
         i += 2; // Skip both lines
       } else {
-        // Standalone chord line
-        result += `<div class="chord-line">${processedChords}</div>`;
+        // Standalone chord line (like in chorus instructions)
+        result += `<div class="chord-line">${processedChords || "&nbsp;"}</div>`;
         i++;
       }
-    } else if (line.trim() === "") {
-      // Empty line - add spacing
-      result += "<br>";
+    } else if (trimmedLine === "") {
+      // Empty line - add spacing only if not consecutive
+      if (i > 0 && lines[i - 1].trim() !== "") {
+        result += "<br>";
+      }
+      i++;
+    } else if (trimmedLine.startsWith("(") && trimmedLine.endsWith(")")) {
+      // Performance notes like (play loud), (x3, very short)
+      result += `<div class="performance-note">${trimmedLine}</div>`;
       i++;
     } else {
-      // Regular text line
-      result += `<div class="lyric-line">${line}</div>`;
+      // Regular text line - check if it contains inline chords
+      if (chordPattern && chordPattern.test(line)) {
+        // Line contains chords mixed with lyrics - keep as is but make chords clickable
+        const processedLine = line.replace(chordPattern, (match) => {
+          return `<span class="chord-inline" data-chord="${match}" data-tab="${chordMap[match] || ""}">${match}</span>`;
+        });
+        result += `<div class="lyric-line">${processedLine}</div>`;
+      } else {
+        result += `<div class="lyric-line">${line || "&nbsp;"}</div>`;
+      }
       i++;
     }
   }
