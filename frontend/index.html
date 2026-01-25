@@ -38,27 +38,40 @@
 
     <!-- Song Details Page -->
     <div class="song-page" id="songPage" style="display: none">
-      <div style="display: flex; gap: 15px; margin-bottom: 30px; flex-wrap: wrap">
+      <div class="song-header-buttons">
         <button class="back-button" id="backButton">← Назад към списъка</button>
-        <button class="export-button" id="exportPdfButton">📄 Експорт в PDF</button>
-        <button class="export-button" id="exportJsonButton">📋 Експорт в JSON</button>
-        <button class="export-button" id="exportCsvButton">📊 Експорт в CSV</button>
+
+        <!-- Export Dropdown Button -->
+        <div class="export-dropdown">
+          <button class="export-button" id="exportButton">📤 Експорт ▼</button>
+          <div class="export-menu" id="exportMenu">
+            <button class="export-menu-item" id="exportPdfButton">📄 Експорт в PDF</button>
+            <button class="export-menu-item" id="exportJsonButton">📋 Експорт в JSON</button>
+            <button class="export-menu-item" id="exportCsvButton">📊 Експорт в CSV</button>
+          </div>
+        </div>
       </div>
 
-      <div class="song-content">
-        <!-- SoundCloud Player -->
-        <div class="soundcloud-player" id="soundcloudPlayer" style="display: none">
-          <!-- SoundCloud iframe will be loaded here -->
+      <div class="song-content-grid">
+        <!-- Left Column: SoundCloud + Chords -->
+        <div class="left-column">
+          <!-- SoundCloud Player -->
+          <div class="soundcloud-player" id="soundcloudPlayer" style="display: none">
+            <!-- SoundCloud iframe will be loaded here -->
+          </div>
+
+          <!-- Chords visualization -->
+          <div class="chords-section" id="chordsSection">
+            <!-- Chords will be displayed here -->
+          </div>
         </div>
 
-        <!-- Song info and lyrics -->
-        <div class="song-info" id="songInfo">
-          <div class="loading">Зареждане...</div>
-        </div>
-
-        <!-- Chords visualization -->
-        <div class="chords-section" id="chordsSection">
-          <!-- Chords will be displayed here -->
+        <!-- Right Column: Lyrics -->
+        <div class="right-column">
+          <!-- Song info and lyrics -->
+          <div class="song-info" id="songInfo">
+            <div class="loading">Зареждане...</div>
+          </div>
         </div>
       </div>
     </div>

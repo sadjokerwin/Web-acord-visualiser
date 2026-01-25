@@ -28,6 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupExportJsonButton();
   setupExportCsvButton();
   setupSearchAndFilters();
+  setupExportDropdown();
 });
 
 // Load all songs from database
@@ -182,6 +183,28 @@ function filterSongs() {
   }
 
   displaySongs(filteredSongs);
+}
+
+// Setup export dropdown menu
+function setupExportDropdown() {
+  const exportButton = document.getElementById("exportButton");
+  const exportMenu = document.getElementById("exportMenu");
+
+  // Toggle dropdown on click
+  exportButton.addEventListener("click", (e) => {
+    e.stopPropagation();
+    exportMenu.classList.toggle("show");
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener("click", () => {
+    exportMenu.classList.remove("show");
+  });
+
+  // Prevent dropdown from closing when clicking inside
+  exportMenu.addEventListener("click", (e) => {
+    e.stopPropagation();
+  });
 }
 
 // Show home page
