@@ -14,6 +14,23 @@
         <p class="subtitle">Изберете песен за да видите текста и акордите</p>
       </header>
 
+      <!-- Search and Filter Section -->
+      <div class="filter-section">
+        <div class="search-container">
+          <input
+            type="text"
+            id="searchInput"
+            class="search-input"
+            placeholder="🔍 Търсене по име на песен..."
+          />
+        </div>
+        <div class="filter-container">
+          <select id="artistFilter" class="artist-filter">
+            <option value="">Всички изпълнители</option>
+          </select>
+        </div>
+      </div>
+
       <div class="songs-grid" id="songsGrid">
         <!-- Songs will be loaded here -->
       </div>
