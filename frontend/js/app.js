@@ -29,6 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupExportCsvButton();
   setupSearchAndFilters();
   setupExportDropdown();
+  setupImportButton();
 });
 
 // Load all songs from database
@@ -954,4 +955,101 @@ function exportToCSV(song, lyrics, chords) {
   URL.revokeObjectURL(url);
 
   console.log(`CSV exported: ${song.title} - ${song.artist}.csv`);
+}
+
+// Добавете това в DOMContentLoaded инициализацията:
+// setupImportButton();
+
+function setupImportButton() {
+  const importBtn = document.getElementById("importButton");
+  const fileInput = document.getElementById("importFileInput");
+
+  importBtn.addEventListener("click", () => fileInput.click());
+
+  fileInput.addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    const extension = file.name.split('.').pop().toLowerCase();
+
+    reader.onload = async (event) => {
+      const content = event.target.result;
+      let songData = null;
+
+      try {
+        if (extension === 'json') {
+          songData = JSON.parse(content);
+        } else if (extension === 'csv') {
+          songData = parseCSVToJSON(content);
+        }
+
+        if (songData) {
+          await sendImportedSongToDB(songData);
+        }
+      } catch (err) {
+        alert("Грешка при четене на файла: " + err.message);
+      }
+    };
+
+    if (extension === 'json' || extension === 'csv') {
+      reader.readAsText(file);
+    }
+  });
+}
+
+// Парсване на CSV обратно към обекта, който използвате
+function parseCSVToJSON(csvText) {
+  const lines = csvText.split('\n');
+  // Опростен парсър за вашия формат
+  const titleArtistLyrics = lines[1].match(/(".*?"|[^,]+)/g).map(s => s.replace(/^"|"$/g, ''));
+
+  const song = {
+    title: titleArtistLyrics[0],
+    artist: titleArtistLyrics[1],
+    lyrics: titleArtistLyrics[2],
+    chords: []
+  };
+
+  // Намиране на началото на секцията с акорди
+  let chordsStarted = false;
+  for (let i = 2; i < lines.length; i++) {
+    if (lines[i].includes("Chord Name,Tab Data")) {
+      chordsStarted = true;
+      continue;
+    }
+    if (chordsStarted && lines[i].trim() !== "") {
+      const parts = lines[i].split(',');
+      if (parts.length >= 3) {
+        song.chords.push({
+          name: parts[0],
+          tab: parts[1],
+          position: parseInt(parts[2])
+        });
+      }
+    }
+  }
+  return song;
+}
+
+// Изпращане към PHP
+async function sendImportedSongToDB(songData) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/save_imported_song.php`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(songData)
+    });
+
+    const result = await response.json();
+    if (result.success) {
+      alert("Песента '" + songData.title + "' е импортирана успешно!");
+      loadSongs(); // Презареждане на списъка
+    } else {
+      throw new Error(result.message);
+    }
+  } catch (error) {
+    console.error("Грешка при импорт:", error);
+    alert("Грешка при запис в базата: " + error.message);
+  }
 }
