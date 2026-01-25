@@ -14,6 +14,7 @@ try {
         id INT AUTO_INCREMENT PRIMARY KEY,
         title VARCHAR(255) NOT NULL,
         artist VARCHAR(255),
+        lyrics TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )");
 
@@ -26,55 +27,39 @@ try {
         FOREIGN KEY (song_id) REFERENCES songs(id) ON DELETE CASCADE
     )");
 
-
-    $stmt = $pdo->prepare("INSERT IGNORE INTO songs (id, title, artist) VALUES (1, 'Mistreated', 'Deep Purple')");
+    // Hymn for the Weekend - Coldplay
+    $stmt = $pdo->prepare("INSERT IGNORE INTO songs (id, title, artist) VALUES (1, 'Hymn for the Weekend', 'Coldplay')");
     $stmt->execute();
     $songId = 1;
 
-    $chordsMistreated = [
-        ['F#m', '244222', 0],
-        ['E/G#', '4x245x', 1],
-        ['D/A', 'x04232', 2],
-        ['Bm', 'x24432', 3]
+    $chordsHymnForTheWeekend = [
+        ['Am', 'x02210', 0],
+        ['F', 'xx3211', 1],
+        ['C', 'x32010', 2],
+        ['G', '320003', 3],
+        ['Em', '022000', 4]
     ];
 
     $stmt = $pdo->prepare("INSERT IGNORE INTO chords (song_id, chord_name, tab_data, position_order) VALUES (?, ?, ?, ?)");
-    foreach ($chordsMistreated as $chord) {
+    foreach ($chordsHymnForTheWeekend as $chord) {
         $stmt->execute([$songId, $chord[0], $chord[1], $chord[2]]);
     }
 
-    $stmt = $pdo->prepare("INSERT IGNORE INTO songs (id, title, artist) VALUES (2, 'Stairway to Heaven', 'Led Zeppelin')");
+    // Adventure of a Lifetime - Coldplay
+    $stmt = $pdo->prepare("INSERT IGNORE INTO songs (id, title, artist) VALUES (2, 'Adventure of a Lifetime', 'Coldplay')");
     $stmt->execute();
     $songId = 2;
 
-    $chordsStairwayHeaven = [
-        ['Am', 'x02210', 0],
-        ['G#aug', 'xx6454', 1],
-        ['C/G', 'xx555x', 2],
-        ['D/F#', 'xx4232', 3],
-        ['Fmaj7', 'xx3210', 4]
+    $chordsAdventureOfALifetime = [
+        ['C', 'x32010', 0],
+        ['F', 'xx3211', 1],
+        ['Am', 'x02210', 2],
+        ['G', '320003', 3],
+        ['Dm', 'xx0231', 4]
     ];
 
     $stmt = $pdo->prepare("INSERT IGNORE INTO chords (song_id, chord_name, tab_data, position_order) VALUES (?, ?, ?, ?)");
-    foreach ($chordsStairwayHeaven as $chord) {
-        $stmt->execute([$songId, $chord[0], $chord[1], $chord[2]]);
-    }
-
-    $stmt = $pdo->prepare("INSERT IGNORE INTO songs (id, title, artist) VALUES (3, 'Hotel California', 'Eagles')");
-    $stmt->execute();
-    $songId = 3;
-
-    $chordHotelCalifornia = [
-        ['Bm', 'x24432', 0],
-        ['F#7', '242322', 1],
-        ['A', 'x02220', 2],
-        ['E', '022100', 3],
-        ['G', '320003', 4],
-        ['D', 'xx0232', 5]
-    ];
-    $stmt = $pdo->prepare("INSERT IGNORE INTO chords (song_id, chord_name, tab_data, position_order) VALUES (?, ?, ?, ?)");
-
-    foreach ($chordHotelCalifornia as $chord) {
+    foreach ($chordsAdventureOfALifetime as $chord) {
         $stmt->execute([$songId, $chord[0], $chord[1], $chord[2]]);
     }
 

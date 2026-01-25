@@ -1,0 +1,336 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --primary-bg: #2b2b2b;
+  --secondary-bg: #1a1a1a;
+  --card-bg: #3a3a3a;
+  --text-primary: #e0e0e0;
+  --text-secondary: #a0a0a0;
+  --border-color: #4a4a4a;
+  --accent-color: #ff9900;
+  --hover-bg: #4a4a4a;
+  --chord-bg: #2b2b2b;
+  --chord-text: #ff9900;
+  --chord-inline: #ff9900;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--secondary-bg);
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+/* Home Page Styles */
+.home-page {
+  min-height: 100vh;
+  padding: 40px 20px;
+  background-color: var(--secondary-bg);
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 50px;
+  padding-bottom: 30px;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.page-header h1 {
+  font-size: 42px;
+  font-weight: 300;
+  margin-bottom: 10px;
+  color: var(--accent-color);
+}
+
+.page-header .subtitle {
+  font-size: 18px;
+  color: var(--text-secondary);
+  font-weight: 300;
+}
+
+/* Songs Grid */
+.songs-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 25px;
+  padding: 0 20px;
+}
+
+.song-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 30px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.song-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(255, 153, 0, 0.3);
+  border-color: var(--accent-color);
+}
+
+.song-card h3 {
+  font-size: 22px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: var(--accent-color);
+}
+
+.song-card p {
+  font-size: 16px;
+  color: var(--text-secondary);
+}
+
+/* Song Details Page */
+.song-page {
+  min-height: 100vh;
+  padding: 30px 20px;
+  background-color: var(--secondary-bg);
+}
+
+.back-button {
+  background: var(--accent-color);
+  color: var(--secondary-bg);
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.back-button:hover {
+  background: #ffb347;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(255, 153, 0, 0.4);
+}
+
+.export-button {
+  background: #4caf50;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.export-button:hover {
+  background: #66bb6a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(76, 175, 80, 0.4);
+}
+
+.song-content {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Song Info Styles */
+.song-info {
+  margin-bottom: 40px;
+  background: var(--primary-bg);
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+}
+
+.song-header {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.song-header h2 {
+  font-size: 32px;
+  font-weight: 400;
+  margin-bottom: 10px;
+  color: var(--accent-color);
+}
+
+.song-header .artist {
+  font-size: 18px;
+  color: var(--text-secondary);
+  font-weight: 300;
+}
+
+.lyrics {
+  padding: 20px 0;
+  white-space: pre-wrap;
+  line-height: 1.8;
+  font-size: 15px;
+  color: var(--text-primary);
+  font-family: "Courier New", monospace;
+}
+
+.lyrics-section {
+  margin-bottom: 25px;
+}
+
+.section-title {
+  color: var(--accent-color);
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 10px;
+  text-decoration: underline;
+  display: block;
+}
+
+.chord-line {
+  color: var(--chord-inline);
+  font-weight: bold;
+  font-size: 13px;
+  line-height: 1.2;
+  min-height: 16px;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.lyric-line {
+  color: var(--text-primary);
+  line-height: 1.4;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.chord-inline {
+  color: var(--chord-inline);
+  font-weight: bold;
+  font-size: 14px;
+  display: inline-block;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.chord-inline:hover {
+  background: rgba(255, 153, 0, 0.2);
+  transform: translateY(-2px);
+}
+
+.chord-inline:active {
+  background: var(--accent-color);
+  color: #000;
+}
+
+/* Chords Section Styles */
+.chords-section {
+  margin-top: 40px;
+  padding-top: 30px;
+  border-top: 2px solid var(--border-color);
+}
+
+.chords-title {
+  font-size: 24px;
+  font-weight: 400;
+  margin-bottom: 25px;
+  color: var(--accent-color);
+}
+
+.chords-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  justify-content: center;
+}
+
+.chord-box {
+  text-align: center;
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.chord-box:hover {
+  border-color: var(--accent-color);
+  box-shadow: 0 4px 15px rgba(255, 153, 0, 0.3);
+}
+
+.chord-name {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: var(--accent-color);
+}
+
+.chord-diagram {
+  background-color: var(--chord-bg);
+  padding: 20px 15px;
+  border-radius: 8px;
+  display: inline-block;
+  font-family: "Courier New", Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.4;
+  white-space: pre;
+  color: var(--chord-text);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--border-color);
+  margin-bottom: 15px;
+}
+
+.play-chord-btn {
+  background: var(--accent-color);
+  color: var(--secondary-bg);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.play-chord-btn:hover {
+  background: #ffb347;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(255, 153, 0, 0.4);
+}
+
+.play-chord-btn:active {
+  transform: translateY(0);
+}
+
+/* Loading state */
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-secondary);
+  font-size: 18px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .songs-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-header h1 {
+    font-size: 32px;
+  }
+
+  .chords-grid {
+    gap: 20px;
+  }
+}
