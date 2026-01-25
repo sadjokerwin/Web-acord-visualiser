@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="bg">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chord Visualiser - Библиотека с песни</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <!-- Home Page - Song List -->
+    <div class="home-page" id="homePage">
+      <header class="page-header">
+        <h1>Библиотека с песни</h1>
+        <p class="subtitle">Изберете песен за да видите текста и акордите</p>
+      </header>
+
+      <div class="songs-grid" id="songsGrid">
+        <!-- Songs will be loaded here -->
+      </div>
+    </div>
+
+    <!-- Song Details Page -->
+    <div class="song-page" id="songPage" style="display: none">
+      <div style="display: flex; gap: 15px; margin-bottom: 30px; flex-wrap: wrap">
+        <button class="back-button" id="backButton">← Назад към списъка</button>
+        <button class="export-button" id="exportPdfButton">📄 Експорт в PDF</button>
+        <button class="export-button" id="exportJsonButton">📋 Експорт в JSON</button>
+        <button class="export-button" id="exportCsvButton">📊 Експорт в CSV</button>
+      </div>
+
+      <div class="song-content">
+        <!-- Song info and lyrics -->
+        <div class="song-info" id="songInfo">
+          <div class="loading">Зареждане...</div>
+        </div>
+
+        <!-- Chords visualization -->
+        <div class="chords-section" id="chordsSection">
+          <!-- Chords will be displayed here -->
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>
