@@ -244,6 +244,9 @@ async function loadSongDetails(songId) {
     // Display song info and lyrics
     displaySongInfo(data.song, lyrics, data.chords);
 
+    // Display SoundCloud player if URL is available
+    displaySoundCloudPlayer(data.song.soundcloud_url);
+
     // Display chords
     displayChords(data.chords);
 
@@ -359,6 +362,36 @@ async function saveLyrics(songId, lyrics) {
   } catch (error) {
     console.error("Грешка при запазване на текста:", error);
   }
+}
+
+// Display SoundCloud player
+function displaySoundCloudPlayer(soundcloudUrl) {
+  const playerContainer = document.getElementById("soundcloudPlayer");
+
+  if (!soundcloudUrl || soundcloudUrl.trim() === "") {
+    playerContainer.style.display = "none";
+    return;
+  }
+
+  // Convert regular SoundCloud URL to embed URL if needed
+  let embedUrl = soundcloudUrl;
+  if (!soundcloudUrl.includes("w.soundcloud.com/player")) {
+    // Extract the track URL and convert to embed format
+    const cleanUrl = soundcloudUrl.split("?")[0]; // Remove query parameters
+    embedUrl = `https://w.soundcloud.com/player/?url=${encodeURIComponent(cleanUrl)}`;
+  }
+
+  playerContainer.innerHTML = `
+    <iframe
+      width="100%"
+      height="166"
+      scrolling="no"
+      frameborder="no"
+      allow="autoplay"
+      src="${embedUrl}">
+    </iframe>
+  `;
+  playerContainer.style.display = "block";
 }
 
 // Display song information and lyrics

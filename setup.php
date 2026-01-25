@@ -15,8 +15,16 @@ try {
         title VARCHAR(255) NOT NULL,
         artist VARCHAR(255),
         lyrics TEXT,
+        soundcloud_url TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )");
+
+    // Add soundcloud_url column if it doesn't exist (for existing databases)
+    try {
+        $pdo->exec("ALTER TABLE songs ADD COLUMN soundcloud_url TEXT");
+    } catch (PDOException $e) {
+        // Column already exists, ignore
+    }
 
     $pdo->exec("CREATE TABLE IF NOT EXISTS chords (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -28,8 +36,9 @@ try {
     )");
 
     // Hymn for the Weekend - Coldplay
-    $stmt = $pdo->prepare("INSERT IGNORE INTO songs (id, title, artist) VALUES (1, 'Hymn for the Weekend', 'Coldplay')");
-    $stmt->execute();
+    $soundcloudUrl1 = "https://w.soundcloud.com/player/?url=https://soundcloud.com/salvatore-mazzei-1/coldplay-hymn-for-the-weekend";
+    $stmt = $pdo->prepare("INSERT INTO songs (id, title, artist, soundcloud_url) VALUES (1, 'Hymn for the Weekend', 'Coldplay', ?) ON DUPLICATE KEY UPDATE soundcloud_url = ?");
+    $stmt->execute([$soundcloudUrl1, $soundcloudUrl1]);
     $songId = 1;
 
     $chordsHymnForTheWeekend = [
@@ -46,8 +55,9 @@ try {
     }
 
     // Adventure of a Lifetime - Coldplay
-    $stmt = $pdo->prepare("INSERT IGNORE INTO songs (id, title, artist) VALUES (2, 'Adventure of a Lifetime', 'Coldplay')");
-    $stmt->execute();
+    $soundcloudUrl2 = "https://w.soundcloud.com/player/?url=https://soundcloud.com/salvatore-mazzei-1/coldplay-adventure-of-a-life-time";
+    $stmt = $pdo->prepare("INSERT INTO songs (id, title, artist, soundcloud_url) VALUES (2, 'Adventure of a Lifetime', 'Coldplay', ?) ON DUPLICATE KEY UPDATE soundcloud_url = ?");
+    $stmt->execute([$soundcloudUrl2, $soundcloudUrl2]);
     $songId = 2;
 
     $chordsAdventureOfALifetime = [
