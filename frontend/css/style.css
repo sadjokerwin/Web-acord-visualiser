@@ -161,6 +161,15 @@ body {
   background-color: var(--secondary-bg);
 }
 
+.song-header-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
 .back-button {
   background: var(--accent-color);
   color: var(--secondary-bg);
@@ -197,6 +206,83 @@ body {
   box-shadow: 0 4px 10px rgba(76, 175, 80, 0.4);
 }
 
+/* Export Dropdown */
+.export-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.export-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 5px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  min-width: 200px;
+  z-index: 1000;
+}
+
+.export-menu.show {
+  display: block;
+}
+
+.export-menu-item {
+  width: 100%;
+  background: transparent;
+  color: var(--text-primary);
+  border: none;
+  padding: 12px 20px;
+  text-align: left;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  border-radius: 0;
+}
+
+.export-menu-item:first-child {
+  border-radius: 8px 8px 0 0;
+}
+
+.export-menu-item:last-child {
+  border-radius: 0 0 8px 8px;
+}
+
+.export-menu-item:hover {
+  background: var(--hover-bg);
+  transform: none;
+  box-shadow: none;
+}
+
+/* Song Content Grid Layout */
+.song-content-grid {
+  display: grid;
+  grid-template-columns: 400px 1fr;
+  gap: 30px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.left-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.right-column {
+  min-width: 0;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .song-content-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .song-content {
   max-width: 900px;
   margin: 0 auto;
@@ -204,7 +290,6 @@ body {
 
 /* SoundCloud Player Styles */
 .soundcloud-player {
-  margin-bottom: 30px;
   background: var(--primary-bg);
   padding: 20px;
   border-radius: 12px;
