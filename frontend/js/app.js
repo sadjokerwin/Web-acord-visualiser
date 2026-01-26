@@ -899,6 +899,7 @@ function exportToJSON(song, lyrics, chords) {
     title: song.title,
     artist: song.artist,
     lyrics: lyrics,
+    soundcloud_url: song.soundcloud_url || '',
     chords: chords.map((chord) => ({
       name: chord.chord_name,
       tab: chord.tab_data,
@@ -927,18 +928,23 @@ function exportToCSV(song, lyrics, chords) {
   const escapeCSV = (field) => {
     if (field === null || field === undefined) return "";
     const str = String(field);
+    // Replace newlines with literal \n for CSV format
+    let escaped = str.replace(/\n/g, "\\n").replace(/\r/g, "\\r");
+    // Escape quotes
+    escaped = escaped.replace(/"/g, '""');
+    // Wrap in quotes if contains special characters
     if (str.includes(",") || str.includes('"') || str.includes("\n")) {
-      return '"' + str.replace(/"/g, '""') + '"';
+      return '"' + escaped + '"';
     }
-    return str;
+    return escaped;
   };
 
   // Create CSV content
-  let csvContent = "Title,Artist,Lyrics\n";
-  csvContent += `${escapeCSV(song.title)},${escapeCSV(song.artist)},${escapeCSV(lyrics)}\n\n`;
+  let csvContent = "Title,Artist,Lyrics,SoundCloudURL\n";
+  csvContent += `${escapeCSV(song.title)},${escapeCSV(song.artist)},${escapeCSV(lyrics)},${escapeCSV(song.soundcloud_url || '')}\n`;
 
   // Add chords section
-  csvContent += "Chord Name,Tab Data,Position\n";
+  csvContent += "\nChord Name,Tab Data,Position\n";
   chords.forEach((chord) => {
     csvContent += `${escapeCSV(chord.chord_name)},${escapeCSV(chord.tab_data)},${escapeCSV(chord.position_order)}\n`;
   });
@@ -998,37 +1004,85 @@ function setupImportButton() {
   });
 }
 
+// Helper function to parse CSV lines with proper quote handling
+function parseCSVLine(line) {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    const nextChar = line[i + 1];
+
+    if (char === '"') {
+      if (inQuotes && nextChar === '"') {
+        // Escaped quote
+        current += '"';
+        i++; // Skip next quote
+      } else {
+        // Toggle quote state
+        inQuotes = !inQuotes;
+      }
+    } else if (char === ',' && !inQuotes) {
+      // Field separator (only if not in quotes)
+      result.push(current);
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+  result.push(current);
+  return result;
+}
+
 // Парсване на CSV обратно към обекта, който използвате
 function parseCSVToJSON(csvText) {
-  const lines = csvText.split('\n');
-  // Опростен парсър за вашия формат
-  const titleArtistLyrics = lines[1].match(/(".*?"|[^,]+)/g).map(s => s.replace(/^"|"$/g, ''));
+  const lines = csvText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+
+  // Find song data line (first data line after header)
+  const songHeaderIndex = lines.findIndex(line => line.startsWith('Title'));
+  if (songHeaderIndex === -1) throw new Error('Invalid CSV format: no Title header found');
+
+  const songDataLine = lines[songHeaderIndex + 1];
+  if (!songDataLine) throw new Error('Invalid CSV format: no song data found');
+
+  // Parse song data
+  const songFields = parseCSVLine(songDataLine);
+
+  // Unescape newlines in lyrics
+  let lyrics = songFields[2] || '';
+  lyrics = lyrics.replace(/\\n/g, '\n').replace(/\\r/g, '\r');
 
   const song = {
-    title: titleArtistLyrics[0],
-    artist: titleArtistLyrics[1],
-    lyrics: titleArtistLyrics[2],
+    title: songFields[0] || '',
+    artist: songFields[1] || '',
+    lyrics: lyrics,
+    soundcloud_url: songFields[3] || '',
     chords: []
   };
 
-  // Намиране на началото на секцията с акорди
-  let chordsStarted = false;
-  for (let i = 2; i < lines.length; i++) {
-    if (lines[i].includes("Chord Name,Tab Data")) {
-      chordsStarted = true;
-      continue;
-    }
-    if (chordsStarted && lines[i].trim() !== "") {
-      const parts = lines[i].split(',');
-      if (parts.length >= 3) {
-        song.chords.push({
-          name: parts[0],
-          tab: parts[1],
-          position: parseInt(parts[2])
-        });
-      }
+  // Find chords section
+  const chordHeaderIndex = lines.findIndex(line => line.includes('Chord Name'));
+  if (chordHeaderIndex === -1) {
+    // No chords section, return song as-is
+    return song;
+  }
+
+  // Parse chords
+  for (let i = chordHeaderIndex + 1; i < lines.length; i++) {
+    const line = lines[i];
+    if (line.length === 0) continue;
+
+    const chordFields = parseCSVLine(line);
+    if (chordFields.length >= 3 && chordFields[0].trim()) {
+      song.chords.push({
+        name: chordFields[0].trim(),
+        tab: chordFields[1].trim(),
+        position: parseInt(chordFields[2].trim()) || 0
+      });
     }
   }
+
   return song;
 }
 
