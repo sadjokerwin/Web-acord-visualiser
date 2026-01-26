@@ -18,8 +18,8 @@ try {
     $pdo->beginTransaction();
 
     // 1. Запис на песента
-    $stmt = $pdo->prepare("INSERT INTO songs (title, artist, lyrics) VALUES (?, ?, ?)");
-    $stmt->execute([$data['title'], $data['artist'], $data['lyrics'] ?? '']);
+    $stmt = $pdo->prepare("INSERT INTO songs (title, artist, lyrics, soundcloud_url) VALUES (?, ?, ?, ?)");
+    $stmt->execute([$data['title'], $data['artist'], $data['lyrics'] ?? '', $data['soundcloud_url'] ?? '']);
     $songId = $pdo->lastInsertId();
 
     // 2. Запис на акордите
