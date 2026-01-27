@@ -51,12 +51,26 @@ function createSongCard(song) {
   const div = document.createElement("div");
   div.className = "song-card";
 
+  const isFav = isFavorite(song.id);
+
   div.innerHTML = `
+        <button class="favorite-btn ${isFav ? "active" : ""}" data-song-id="${song.id}">
+            ${isFav ? "❤️" : "🤍"}
+        </button>
         <h3>${song.title}</h3>
         <p>${song.artist}</p>
     `;
 
-  div.addEventListener("click", () => loadSongDetails(song.id));
+  // Add click handler for card
+  div.addEventListener("click", (e) => {
+    if (!e.target.classList.contains("favorite-btn")) {
+      loadSongDetails(song.id);
+    }
+  });
+
+  // Setup favorite button
+  const favBtn = div.querySelector(".favorite-btn");
+  setupFavoriteButton(song.id, favBtn);
 
   return div;
 }
@@ -65,9 +79,16 @@ function createSongCard(song) {
 function filterSongs() {
   const searchTerm = document.getElementById("searchInput").value.toLowerCase();
   const selectedArtist = document.getElementById("artistFilter").value;
+  const showFavoritesOnly = document.getElementById("favoritesFilter")?.checked || false;
 
   let filteredSongs = allSongs;
 
+  // Filter by favorites
+  if (showFavoritesOnly) {
+    filteredSongs = getFavoriteSongs();
+  }
+
+  // Filter by artist if selected
   if (selectedArtist) {
     filteredSongs = filteredSongs.filter((song) => song.artist === selectedArtist);
   }

@@ -103,14 +103,24 @@ function displaySongInfo(song, lyrics, chords) {
   const songInfo = document.getElementById("songInfo");
 
   const lyricsWithChords = addChordsToLyrics(lyrics, chords);
+  const isFav = isFavorite(song.id);
 
   songInfo.innerHTML = `
         <div class="song-header">
-            <h2>${song.title}</h2>
+            <div class="song-title-section">
+                <h2>${song.title}</h2>
+                <button class="favorite-btn-large ${isFav ? "active" : ""}" id="songFavoriteBtn">
+                    ${isFav ? "❤️" : "🤍"}
+                </button>
+            </div>
             <p class="artist">${song.artist}</p>
         </div>
         <div class="lyrics">${lyricsWithChords || "Текстът на песента не е наличен"}</div>
     `;
+
+  // Setup favorite button for song details
+  const favBtn = document.getElementById("songFavoriteBtn");
+  setupFavoriteButton(song.id, favBtn);
 
   attachChordClickListeners(chords);
 }

@@ -33,6 +33,12 @@
             <option value="">Всички изпълнители</option>
           </select>
         </div>
+        <div class="favorites-filter-container">
+          <label class="favorites-checkbox">
+            <input type="checkbox" id="favoritesFilter" />
+            <span>❤️ Само любими</span>
+          </label>
+        </div>
       </div>
 
       <div class="songs-grid" id="songsGrid">
@@ -84,6 +90,7 @@
 
     <!-- Load modules in correct order -->
     <script src="js/config.js"></script>
+    <script src="js/favorites.js"></script>
     <script src="js/audioPlayer.js"></script>
     <script src="js/chordDisplay.js"></script>
     <script src="js/lyricsFormatter.js"></script>

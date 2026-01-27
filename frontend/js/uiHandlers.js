@@ -48,12 +48,17 @@ function setupExportCsvButton() {
 function setupSearchAndFilters() {
   const searchInput = document.getElementById("searchInput");
   const artistFilter = document.getElementById("artistFilter");
+  const favoritesFilter = document.getElementById("favoritesFilter");
 
   searchInput.addEventListener("input", (e) => {
     filterSongs();
   });
 
   artistFilter.addEventListener("change", (e) => {
+    filterSongs();
+  });
+
+  favoritesFilter.addEventListener("change", (e) => {
     filterSongs();
   });
 }
