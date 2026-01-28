@@ -1,6 +1,3 @@
-// Song Manager Module - song list management and filtering
-
-// Load all songs from database
 async function loadSongs() {
   try {
     const response = await fetch(`${API_BASE_URL}/get_songs.php`);
@@ -14,7 +11,6 @@ async function loadSongs() {
   }
 }
 
-// Display songs in the grid
 function displaySongs(songs) {
   const songsGrid = document.getElementById("songsGrid");
   songsGrid.innerHTML = "";
@@ -31,7 +27,6 @@ function displaySongs(songs) {
   });
 }
 
-// Populate artist filter dropdown
 function populateArtistFilter(songs) {
   const artistFilter = document.getElementById("artistFilter");
   const artists = [...new Set(songs.map((song) => song.artist))].sort();
@@ -46,7 +41,6 @@ function populateArtistFilter(songs) {
   });
 }
 
-// Create song card element
 function createSongCard(song) {
   const div = document.createElement("div");
   div.className = "song-card";
@@ -61,21 +55,18 @@ function createSongCard(song) {
         <p>${song.artist}</p>
     `;
 
-  // Add click handler for card
   div.addEventListener("click", (e) => {
     if (!e.target.classList.contains("favorite-btn")) {
       loadSongDetails(song.id);
     }
   });
 
-  // Setup favorite button
   const favBtn = div.querySelector(".favorite-btn");
   setupFavoriteButton(song.id, favBtn);
 
   return div;
 }
 
-// Filter songs based on search and artist filter
 function filterSongs() {
   const searchTerm = document.getElementById("searchInput").value.toLowerCase();
   const selectedArtist = document.getElementById("artistFilter").value;
@@ -83,12 +74,10 @@ function filterSongs() {
 
   let filteredSongs = allSongs;
 
-  // Filter by favorites
   if (showFavoritesOnly) {
     filteredSongs = getFavoriteSongs();
   }
 
-  // Filter by artist if selected
   if (selectedArtist) {
     filteredSongs = filteredSongs.filter((song) => song.artist === selectedArtist);
   }

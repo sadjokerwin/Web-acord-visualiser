@@ -1,6 +1,3 @@
-// Lyrics Formatter Module - lyrics parsing and chord positioning
-
-// Format plain lyrics with chord positioning
 function formatLyricsWithChords(plainLyrics, chords) {
   if (!plainLyrics || !chords || chords.length === 0) {
     return sanitizeLyrics(plainLyrics);
@@ -51,7 +48,6 @@ function formatLyricsWithChords(plainLyrics, chords) {
   return formattedLines.join("\n");
 }
 
-// Sanitize lyrics text from API
 function sanitizeLyrics(lyrics) {
   if (!lyrics) return "";
 
@@ -66,7 +62,6 @@ function sanitizeLyrics(lyrics) {
   return cleaned;
 }
 
-// Add chords above lyrics (enhanced implementation)
 function addChordsToLyrics(lyrics, chords) {
   if (!lyrics) return "";
 
@@ -159,7 +154,6 @@ function addChordsToLyrics(lyrics, chords) {
   return result;
 }
 
-// Attach click listeners to chord spans
 function attachChordClickListeners(chords) {
   const chordSpans = document.querySelectorAll(".chord-inline");
 

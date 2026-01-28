@@ -1,6 +1,3 @@
-// Song Details Module - loading and displaying song details
-
-// Load song details
 async function loadSongDetails(songId) {
   showSongPage();
 
@@ -17,40 +14,75 @@ async function loadSongDetails(songId) {
 
     let lyrics = data.song.lyrics;
 
-    if (!lyrics || lyrics.trim() === "") {
-      const artist = encodeURIComponent(data.song.artist);
-      const title = encodeURIComponent(data.song.title);
-
-      try {
-        const lyricsResponse = await fetch(`${LYRICS_API_URL}/${artist}/${title}`);
-        const lyricsData = await lyricsResponse.json();
-        lyrics = lyricsData.lyrics;
-
-        const formattedLyrics = formatLyricsWithChords(lyrics, data.chords);
-        saveLyrics(songId, formattedLyrics);
-        lyrics = formattedLyrics;
-      } catch (error) {
-        console.error("Грешка при зареждане на текста:", error);
-        lyrics = "Текстът на песента не е наличен";
-      }
-    }
-
-    displaySongInfo(data.song, lyrics, data.chords);
+    displaySongInfo(data.song, lyrics || "Зареждане на текста...", data.chords);
     displaySoundCloudPlayer(data.song.soundcloud_url);
     displayChords(data.chords);
 
     currentSongData = {
       song: data.song,
-      lyrics: lyrics,
+      lyrics: lyrics || "",
       chords: data.chords,
     };
+
+    if (!lyrics || lyrics.trim() === "") {
+      const artist = data.song.artist;
+      const title = data.song.title;
+
+      fetchLyricsFromAPI(songId, artist, title, data.chords).catch(err => {
+        console.error("Background lyrics fetch failed:", err);
+      });
+    }
   } catch (error) {
     console.error("Грешка при зареждане на песен:", error);
     songInfo.innerHTML = '<div class="loading">Грешка при зареждане на песента</div>';
   }
 }
 
-// Save lyrics to database
+async function fetchLyricsFromAPI(songId, artist, title, chords) {
+  const fetchWithTimeout = (url, timeout = 6000) => {
+    return Promise.race([
+      fetch(url),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('API request timeout')), timeout)
+      )
+    ]);
+  };
+
+  try {
+    console.log(`Fetching lyrics for "${title}" by "${artist}" from API...`);
+
+    let lyricsResponse = await fetchWithTimeout(
+      `${LYRICS_API_URL}/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`
+    );
+
+    if (!lyricsResponse.ok) {
+      throw new Error(`API returned status ${lyricsResponse.status}`);
+    }
+
+    const lyricsData = await lyricsResponse.json();
+
+    if (!lyricsData.lyrics) {
+      console.warn(`No lyrics found for "${title}" by "${artist}"`);
+      return;
+    }
+
+    console.log("Lyrics fetched successfully from API");
+
+    const formattedLyrics = formatLyricsWithChords(lyricsData.lyrics, chords);
+    await saveLyrics(songId, formattedLyrics);
+
+    displaySongInfo({ artist, title }, formattedLyrics, chords);
+
+    if (currentSongData && currentSongData.song.id === songId) {
+      currentSongData.lyrics = formattedLyrics;
+    }
+
+    console.log("Lyrics saved to database and display updated");
+  } catch (error) {
+    console.error("Failed to fetch lyrics from API:", error.message);
+  }
+}
+
 async function saveLyrics(songId, lyrics) {
   const cleanedLyrics = sanitizeLyrics(lyrics);
 
@@ -70,7 +102,6 @@ async function saveLyrics(songId, lyrics) {
   }
 }
 
-// Display SoundCloud player
 function displaySoundCloudPlayer(soundcloudUrl) {
   const playerContainer = document.getElementById("soundcloudPlayer");
 
@@ -98,7 +129,6 @@ function displaySoundCloudPlayer(soundcloudUrl) {
   playerContainer.style.display = "block";
 }
 
-// Display song information and lyrics
 function displaySongInfo(song, lyrics, chords) {
   const songInfo = document.getElementById("songInfo");
 
@@ -118,7 +148,6 @@ function displaySongInfo(song, lyrics, chords) {
         <div class="lyrics">${lyricsWithChords || "Текстът на песента не е наличен"}</div>
     `;
 
-  // Setup favorite button for song details
   const favBtn = document.getElementById("songFavoriteBtn");
   setupFavoriteButton(song.id, favBtn);
 

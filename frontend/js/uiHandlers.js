@@ -1,6 +1,3 @@
-// UI Handlers Module - event handlers and navigation
-
-// Setup back button
 function setupBackButton() {
   const backButton = document.getElementById("backButton");
   backButton.addEventListener("click", () => {
@@ -8,7 +5,6 @@ function setupBackButton() {
   });
 }
 
-// Setup export button
 function setupExportButton() {
   const exportButton = document.getElementById("exportPdfButton");
   exportButton.addEventListener("click", () => {
@@ -20,7 +16,6 @@ function setupExportButton() {
   });
 }
 
-// Setup JSON export button
 function setupExportJsonButton() {
   const exportButton = document.getElementById("exportJsonButton");
   exportButton.addEventListener("click", () => {
@@ -32,7 +27,6 @@ function setupExportJsonButton() {
   });
 }
 
-// Setup CSV export button
 function setupExportCsvButton() {
   const exportButton = document.getElementById("exportCsvButton");
   exportButton.addEventListener("click", () => {
@@ -44,7 +38,6 @@ function setupExportCsvButton() {
   });
 }
 
-// Setup search and filters
 function setupSearchAndFilters() {
   const searchInput = document.getElementById("searchInput");
   const artistFilter = document.getElementById("artistFilter");
@@ -63,7 +56,6 @@ function setupSearchAndFilters() {
   });
 }
 
-// Setup export dropdown menu
 function setupExportDropdown() {
   const exportButton = document.getElementById("exportButton");
   const exportMenu = document.getElementById("exportMenu");
@@ -82,7 +74,6 @@ function setupExportDropdown() {
   });
 }
 
-// Show home page
 function showHomePage() {
   document.getElementById("homePage").style.display = "block";
   document.getElementById("songPage").style.display = "none";
@@ -92,7 +83,6 @@ function showHomePage() {
   window.history.pushState({}, "", url);
 }
 
-// Show song page
 function showSongPage() {
   document.getElementById("homePage").style.display = "none";
   document.getElementById("songPage").style.display = "block";
