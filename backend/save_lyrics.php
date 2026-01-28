@@ -6,7 +6,6 @@ header('Access-Control-Allow-Headers: Content-Type');
 
 require_once __DIR__ . '/../models/Database.php';
 
-// Get JSON input
 $input = json_decode(file_get_contents('php://input'), true);
 
 if (!isset($input['song_id']) || !isset($input['lyrics'])) {
@@ -20,10 +19,10 @@ $lyrics = $input['lyrics'];
 try {
     $database = new Database();
     $pdo = $database->getConnection();
-    
+
     $stmt = $pdo->prepare("UPDATE songs SET lyrics = ? WHERE id = ?");
     $stmt->execute([$lyrics, $songId]);
-    
+
     echo json_encode(['success' => true]);
 } catch (PDOException $e) {
     echo json_encode(['error' => $e->getMessage()]);

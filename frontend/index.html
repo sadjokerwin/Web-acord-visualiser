@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
-    <!-- Home Page - Song List -->
     <div class="home-page" id="homePage">
       <header class="page-header">
         <h1>Библиотека с песни</h1>
@@ -18,7 +17,6 @@
         </div>
       </header>
 
-      <!-- Search and Filter Section -->
       <div class="filter-section">
         <div class="search-container">
           <input
@@ -42,16 +40,13 @@
       </div>
 
       <div class="songs-grid" id="songsGrid">
-        <!-- Songs will be loaded here -->
       </div>
     </div>
 
-    <!-- Song Details Page -->
     <div class="song-page" id="songPage" style="display: none">
       <div class="song-header-buttons">
         <button class="back-button" id="backButton">← Назад към списъка</button>
 
-        <!-- Export Dropdown Button -->
         <div class="export-dropdown">
           <button class="export-button" id="exportButton">📤 Експорт ▼</button>
           <div class="export-menu" id="exportMenu">
@@ -63,22 +58,15 @@
       </div>
 
       <div class="song-content-grid">
-        <!-- Left Column: SoundCloud + Chords -->
         <div class="left-column">
-          <!-- SoundCloud Player -->
           <div class="soundcloud-player" id="soundcloudPlayer" style="display: none">
-            <!-- SoundCloud iframe will be loaded here -->
           </div>
 
-          <!-- Chords visualization -->
           <div class="chords-section" id="chordsSection">
-            <!-- Chords will be displayed here -->
           </div>
         </div>
 
-        <!-- Right Column: Lyrics -->
         <div class="right-column">
-          <!-- Song info and lyrics -->
           <div class="song-info" id="songInfo">
             <div class="loading">Зареждане...</div>
           </div>
@@ -88,7 +76,6 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-    <!-- Load modules in correct order -->
     <script src="js/config.js"></script>
     <script src="js/favorites.js"></script>
     <script src="js/audioPlayer.js"></script>

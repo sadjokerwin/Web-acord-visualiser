@@ -1,5 +1,4 @@
 <?php
-// backend/save_imported_song.php
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
@@ -17,12 +16,10 @@ try {
     $pdo = $database->getConnection();
     $pdo->beginTransaction();
 
-    // 1. Запис на песента
     $stmt = $pdo->prepare("INSERT INTO songs (title, artist, lyrics, soundcloud_url) VALUES (?, ?, ?, ?)");
     $stmt->execute([$data['title'], $data['artist'], $data['lyrics'] ?? '', $data['soundcloud_url'] ?? '']);
     $songId = $pdo->lastInsertId();
 
-    // 2. Запис на акордите
     if (isset($data['chords']) && is_array($data['chords'])) {
         $chordStmt = $pdo->prepare("INSERT INTO chords (song_id, chord_name, tab_data, position_order) VALUES (?, ?, ?, ?)");
         foreach ($data['chords'] as $chord) {

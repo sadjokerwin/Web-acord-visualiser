@@ -1,6 +1,3 @@
-// Export Manager Module - PDF, JSON, CSV export functionality
-
-// Export song to PDF
 function exportToPDF(song, lyrics, chords) {
   if (typeof window.jspdf === "undefined") {
     alert("PDF библиотеката не е заредена!");
@@ -16,26 +13,22 @@ function exportToPDF(song, lyrics, chords) {
   const margin = 20;
   const maxWidth = pageWidth - 2 * margin;
 
-  // Title
   doc.setFontSize(20);
   doc.setFont("helvetica", "bold");
   doc.text(song.title, margin, yPosition);
   yPosition += 10;
 
-  // Artist
   doc.setFontSize(12);
   doc.setFont("helvetica", "normal");
   doc.setTextColor(100, 100, 100);
   doc.text(`Artist: ${song.artist}`, margin, yPosition);
   yPosition += 15;
 
-  // Separator line
   doc.setDrawColor(255, 153, 0);
   doc.setLineWidth(0.5);
   doc.line(margin, yPosition, pageWidth - margin, yPosition);
   yPosition += 10;
 
-  // Lyrics
   doc.setFontSize(10);
   doc.setTextColor(0, 0, 0);
   doc.setFont("courier", "normal");
@@ -71,7 +64,6 @@ function exportToPDF(song, lyrics, chords) {
     });
   }
 
-  // New page for chords
   doc.addPage();
   yPosition = 20;
 
@@ -118,7 +110,6 @@ function exportToPDF(song, lyrics, chords) {
   console.log(`PDF exported: ${filename}`);
 }
 
-// Export song to JSON
 function exportToJSON(song, lyrics, chords) {
   const data = {
     title: song.title,
@@ -147,7 +138,6 @@ function exportToJSON(song, lyrics, chords) {
   console.log(`JSON exported: ${song.title} - ${song.artist}.json`);
 }
 
-// Export song to CSV
 function exportToCSV(song, lyrics, chords) {
   const escapeCSV = (field) => {
     if (field === null || field === undefined) return "";

@@ -1,5 +1,3 @@
-// Import Manager Module - JSON and CSV import functionality
-
 function setupImportButton() {
   const importBtn = document.getElementById("importButton");
   const fileInput = document.getElementById("importFileInput");
@@ -38,7 +36,6 @@ function setupImportButton() {
   });
 }
 
-// Helper function to parse CSV lines with proper quote handling
 function parseCSVLine(line) {
   const result = [];
   let current = "";
@@ -66,7 +63,6 @@ function parseCSVLine(line) {
   return result;
 }
 
-// Parse CSV to JSON object
 function parseCSVToJSON(csvText) {
   const lines = csvText
     .split("\n")
@@ -114,7 +110,6 @@ function parseCSVToJSON(csvText) {
   return song;
 }
 
-// Send imported song to database
 async function sendImportedSongToDB(songData) {
   try {
     const response = await fetch(`${API_BASE_URL}/save_imported_song.php`, {
