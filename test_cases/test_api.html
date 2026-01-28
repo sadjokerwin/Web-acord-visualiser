@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lyrics API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        button {
+            background-color: #FF9900;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #E68A00;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .results {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            display: none;
+        }
+        .results.show {
+            display: block;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.loading {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .info {
+            background-color: #e7f3ff;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-size: 12px;
+            color: #003d66;
+        }
+        .lyrics {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 4px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        .spinner {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 Lyrics API Test</h1>
+        <p>Test the lyrics.ovh API directly to check if it's working</p>
+
+        <div class="form-group">
+            <label for="artist">Artist Name:</label>
+            <input type="text" id="artist" placeholder="e.g., Passenger" value="Passenger">
+        </div>
+
+        <div class="form-group">
+            <label for="title">Song Title:</label>
+            <input type="text" id="title" placeholder="e.g., Let Her Go" value="Let Her Go">
+        </div>
+
+        <button onclick="testAPI()">Test API</button>
+        <button onclick="clearResults()">Clear Results</button>
+
+        <div id="results" class="results"></div>
+    </div>
+
+    <script>
+        async function testAPI() {
+            const artist = document.getElementById('artist').value.trim();
+            const title = document.getElementById('title').value.trim();
+            const resultsDiv = document.getElementById('results');
+
+            if (!artist || !title) {
+                showResult('error', 'Please enter both artist and title');
+                return;
+            }
+
+            showResult('loading', '<span class="spinner">⏳</span> Fetching lyrics...');
+            resultsDiv.classList.add('show');
+
+            const startTime = performance.now();
+            const apiUrl = `https://api.lyrics.ovh/v1/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`;
+
+            try {
+                console.log(`Testing API URL: ${apiUrl}`);
+
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+                const response = await fetch(apiUrl, {
+                    signal: controller.signal,
+                    mode: 'cors',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                clearTimeout(timeoutId);
+                const endTime = performance.now();
+                const duration = (endTime - startTime).toFixed(2);
+
+                console.log(`Response status: ${response.status}`);
+                console.log(`Response time: ${duration}ms`);
+
+                const data = await response.json();
+                console.log('Response data:', data);
+
+                if (!response.ok) {
+                    throw new Error(`API returned status ${response.status}: ${data.error || 'Unknown error'}`);
+                }
+
+                if (!data.lyrics) {
+                    showResult('error', `No lyrics found for "${title}" by "${artist}"`);
+                    showInfo(`API Status: ${response.status} | Response Time: ${duration}ms`);
+                    return;
+                }
+
+                const lyricsLength = data.lyrics.length;
+                const lyricsPreview = data.lyrics.substring(0, 500);
+
+                showResult('success', `✓ Lyrics found! (${lyricsLength} characters)`);
+                showInfo(`API Status: ${response.status} | Response Time: ${duration}ms`);
+                
+                resultsDiv.innerHTML += `
+                    <div class="lyrics">${escapeHtml(data.lyrics)}</div>
+                `;
+
+            } catch (error) {
+                const endTime = performance.now();
+                const duration = (endTime - startTime).toFixed(2);
+
+                let errorMessage = error.message;
+                
+                if (error.name === 'AbortError') {
+                    errorMessage = 'Request timeout (10 seconds) - API is not responding';
+                } else if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+                    errorMessage = 'CORS error - API may be down or blocking requests';
+                }
+
+                console.error('API Error:', error);
+                showResult('error', `✗ API Error: ${errorMessage}`);
+                showInfo(`Response Time: ${duration}ms`);
+            }
+        }
+
+        function showResult(type, message) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        function showInfo(message) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML += `<div class="info">${message}</div>`;
+        }
+
+        function clearResults() {
+            document.getElementById('results').classList.remove('show');
+            document.getElementById('results').innerHTML = '';
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Test with default values on load
+        window.addEventListener('load', () => {
+            console.log('Test page loaded. Ready to test API.');
+        });
+    </script>
+</body>
+</html>
